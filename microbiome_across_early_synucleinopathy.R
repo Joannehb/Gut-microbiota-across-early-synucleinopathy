@@ -5,7 +5,6 @@
 ##                                                                    ##
 ########################################################################
 
-setwd("D:/HuangBei/NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNature communications/RESUBMISSION!!!!!!!!!!!!!!!!!!!/R code")
 library(compositions)
 library(vegan)
 library(dplyr)
@@ -375,7 +374,10 @@ pcoa_faecalibacterium + geom_segment(x = 0, y = 0,
                          colour = "#000000", arrow = arrow(length = unit(3, "mm")))
           
 
-########################################### Differential Abundance Analysis ############################################
+
+
+
+########################### Differential Abundance Analysis ###########################
 
 ## Microbiome multivariable associations with linear model (MaAsLin 2)
 ## The input data is centered log-ratio (clr) transformed abundance of differential 
@@ -419,7 +421,9 @@ View(fit_data_family$results)
 res_family <- as.data.frame(fit_data_family$results)  
 
 
-########################################### Analysis of Host-Microbiome Interactions #####################################
+
+
+########################### Analysis of Host-Microbiome Interactions ###########################
 
 ## The effect of host factors on the overall microbial compositions
 # Inter-individual variation explained by each host factor
@@ -585,7 +589,10 @@ fit_data_family_pd_drugs <- Maaslin2(
 View(fit_data_family_pd_drugs$results)
 res_family_pd_drugs <- as.data.frame(fit_data_family_pd_drugs$results)  
 
-########################################### Random Forest #######################
+
+
+
+########################### Random Forest classification ###########################
 
 library(randomForest)
 library(pROC)
@@ -738,7 +745,8 @@ plot.roc.RBD <- ci.se(roc.RBD, specificities=seq(0, 100, 5)) # compute the confi
 plot(plot.roc.RBD, type="shape", col="#6DFFE7") # print the confidence interval
 
 
-########################################### Mediation Analysis ##################################################
+                                     
+########################### Mediation Analysis ###########################
 
 library(mediation)
 metadata <- read.csv('./metadata.csv')
@@ -803,7 +811,7 @@ results = mediate(fit.mediator, fit.dv, treat='PCoA1', mediator='BMF_score', boo
 summary(results)
 
 
-########################################### pathway abundance analysis########################
+########################### pathway abundance analysis ###########################
 
 ## Microbiome multivariable associations with linear model (MaAsLin 2)
 # The input data is centered log-ratio (clr) transformed abundance of differential pathways (n = 18) 
