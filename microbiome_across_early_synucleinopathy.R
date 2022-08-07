@@ -785,7 +785,7 @@ summary(fit.mediator) # the effect of exposure onto the mediator
 fit.dv=glm(LR_prodromal_pd_excluding_FC_RBD_LGtransition~PCoA1+BMF_score+age+gender, family =gaussian, metadata)
 summary(fit.dv) # the effect of the mediator on the outcome
 
-results = mediate(fit.mediator, fit.dv, treat='BMF_score', mediator='PCoA1', boot=T)
+results = mediate(fit.mediator, fit.dv, treat='BMF_score', mediator='PCoA1', sims = 10000, boot=T)
 summary(results) # mediation analysis
 
 
@@ -807,7 +807,7 @@ summary(fit.mediator)
 fit.dv=glm(LR_prodromal_pd_excluding_FC_RBD_LGtransition~PCoA1+BMF_score+age+gender, family =gaussian, metadata)
 summary(fit.dv)
 
-results = mediate(fit.mediator, fit.dv, treat='PCoA1', mediator='BMF_score', boot=T)
+results = mediate(fit.mediator, fit.dv, treat='PCoA1', mediator='BMF_score', sims = 10000, boot=T)
 summary(results)
 
 
