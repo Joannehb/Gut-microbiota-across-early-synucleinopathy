@@ -90,7 +90,7 @@ disper_group_durationRBD_pwc
 
 ## Overall permanova test
 
-adonis_group <- adonis2(dis~Group+age+gender, metadata, permutations = 99999)
+adonis_group <- adonis2(dis~Group+age+sex, metadata, permutations = 99999)
 adonis_group
 
 ## Pairwise comparisons in permanova
@@ -100,11 +100,31 @@ metadata_ctrl_fdr <- metadata %>% filter(Group == "Control" | Group == "RBD_FDR"
 which(colnames(metadata_ctrl_fdr)=="rel_g001")
 which(colnames(metadata_ctrl_fdr)=="rel_g249")
 otu_ctrl_fdr <- metadata_ctrl_fdr[ , c(28:276)]
+row.names(otu_ctrl_fdr) <- metadata_ctrl_fdr$Sample_ID
 dis_ctrl_fdr <- vegdist(otu_ctrl_fdr, method = 'bray')
-adonis_group_ctrl_fdr <- adonis2(dis_ctrl_fdr~Group+age+gender, metadata_ctrl_fdr, permutations = 99999)
+adonis_group_ctrl_fdr <- adonis2(dis_ctrl_fdr~Group+age+sex, metadata_ctrl_fdr, permutations = 99999)
 adonis_group_ctrl_fdr
 adonis_group_ctrl_fdr <- adonis_group_ctrl_fdr[1, ]
-row.names(adonis_group_ctrl_fdr)[1] <- "Control_RBDFDR"  
+row.names(adonis_group_ctrl_fdr)[1] <- "Control_RBDFDR"
+
+# pcoa
+pcoa <- wcmdscale(dis_ctrl_fdr, eig = T, x.ret = T, add = "cailliez")
+pcoa_eig <- (pcoa$eig)[1:2] / sum(pcoa$eig)
+sample_group <- data.frame({pcoa$point})[1:2]
+names(sample_group)[1:2] <- c('PCoA1', 'PCoA2')
+sample_group$Sample_ID <-row.names(sample_group)
+metadata_ctrl_fdr <- merge(sample_group, metadata_ctrl_fdr, by = 'Sample_ID')
+
+pcoa_ctrl_fdr <- ggplot(metadata_ctrl_fdr, aes(x = PCoA1, y = PCoA2, colour = Group)) +
+  scale_shape_manual(values = c(16, 16)) +
+  scale_color_manual(values = c('#ffc300', "#6fa8d6")) +
+  theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+  geom_point(aes(color = Group, shape = Group), size = 4, alpha = 0.9) +
+  labs(x = paste('PCoA1: ', round(100 * pcoa_eig[1], 2), '%'), y = paste('PCoA2: ', round(100 * pcoa_eig[2], 2), '%'))+
+  coord_fixed()+
+  theme(legend.position="none")+
+  stat_ellipse(level = 0.70, size = 1.5)
+pcoa_ctrl_fdr
 
 # Control vs RBD
 
@@ -112,12 +132,32 @@ metadata_ctrl_rbd <- metadata %>% filter(Group == "Control" | Group == "RBD")
 which(colnames(metadata_ctrl_rbd)=="rel_g001")
 which(colnames(metadata_ctrl_rbd)=="rel_g249")
 otu_ctrl_rbd <- metadata_ctrl_rbd[ , c(28:276)]
+row.names(otu_ctrl_rbd) <- metadata_ctrl_rbd$Sample_ID
 dis_ctrl_rbd <- vegdist(otu_ctrl_rbd, method = 'bray')
-adonis_group_ctrl_rbd <- adonis2(dis_ctrl_rbd~Group+age+gender, metadata_ctrl_rbd, permutations = 99999)
+adonis_group_ctrl_rbd <- adonis2(dis_ctrl_rbd~Group+age+sex, metadata_ctrl_rbd, permutations = 99999)
 adonis_group_ctrl_rbd
 adonis_group_ctrl_rbd <- adonis_group_ctrl_rbd[1, ]
 row.names(adonis_group_ctrl_rbd)[1] <- "Control_RBD"
 
+# pcoa
+pcoa <- wcmdscale(dis_ctrl_rbd, eig = T, x.ret = T, add = "cailliez")
+pcoa_eig <- (pcoa$eig)[1:2] / sum(pcoa$eig)
+sample_group <- data.frame({pcoa$point})[1:2]
+names(sample_group)[1:2] <- c('PCoA1', 'PCoA2')
+sample_group$Sample_ID <-row.names(sample_group)
+metadata_ctrl_rbd <- merge(sample_group, metadata_ctrl_rbd, by = 'Sample_ID')
+
+pcoa_ctrl_rbd <- ggplot(metadata_ctrl_rbd, aes(x = PCoA1, y = PCoA2, colour = Group)) +
+  scale_shape_manual(values = c(16, 16)) +
+  scale_color_manual(values = c('#ffc300', '#1f7d94')) +
+  theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+  geom_point(aes(color = Group, shape = Group), size = 4, alpha = 0.9) +
+  labs(x = paste('PCoA1: ', round(100 * pcoa_eig[1], 2), '%'), y = paste('PCoA2: ', round(100 * pcoa_eig[2], 2), '%'))+
+  coord_fixed()+
+  theme(legend.position="none")+
+  stat_ellipse(level = 0.70, size = 1.5)+
+  xlim(-0.54, 0.7)
+pcoa_ctrl_rbd
 
 # Control vs Early PD
 
@@ -125,11 +165,33 @@ metadata_ctrl_pd <- metadata %>% filter(Group == "Control" | Group == "Early_PD"
 which(colnames(metadata_ctrl_pd)=="rel_g001")
 which(colnames(metadata_ctrl_pd)=="rel_g249")
 otu_ctrl_pd <- metadata_ctrl_pd[ , c(28:276)]
+row.names(otu_ctrl_pd) <- metadata_ctrl_pd$Sample_ID
 dis_ctrl_pd <- vegdist(otu_ctrl_pd, method = 'bray')
-adonis_group_ctrl_pd <- adonis2(dis_ctrl_pd~Group+age+gender, metadata_ctrl_pd, permutations = 99999)
+adonis_group_ctrl_pd <- adonis2(dis_ctrl_pd~Group+age+sex, metadata_ctrl_pd, permutations = 99999)
 adonis_group_ctrl_pd
 adonis_group_ctrl_pd <- adonis_group_ctrl_pd[1, ]
-row.names(adonis_group_ctrl_pd)[1] <- "Control_PD"  
+row.names(adonis_group_ctrl_pd)[1] <- "Control_PD"
+
+# pcoa
+pcoa <- wcmdscale(dis_ctrl_pd, eig = T, x.ret = T, add = "cailliez")
+pcoa_eig <- (pcoa$eig)[1:2] / sum(pcoa$eig)
+sample_group <- data.frame({pcoa$point})[1:2]
+names(sample_group)[1:2] <- c('PCoA1', 'PCoA2')
+sample_group$Sample_ID <-row.names(sample_group)
+metadata_ctrl_pd <- merge(sample_group, metadata_ctrl_pd, by = 'Sample_ID')
+
+pcoa_ctrl_pd <- ggplot(metadata_ctrl_pd, aes(x = PCoA1, y = PCoA2, colour = Group)) +
+  scale_shape_manual(values = c(16, 16)) +
+  scale_color_manual(values = c('#ffc300','#013540')) +
+  theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+  geom_point(aes(color = Group, shape = Group), size = 4, alpha = 0.9) +
+  labs(x = paste('PCoA1: ', round(100 * pcoa_eig[1], 2), '%'), y = paste('PCoA2: ', round(100 * pcoa_eig[2], 2), '%'))+
+  coord_fixed()+
+  theme(legend.position="none")+
+  stat_ellipse(level = 0.70, size = 1.5)+
+  xlim(-0.47, 0.65)
+pcoa_ctrl_pd
+
 
 # RBD-FDR vs RBD
 
@@ -137,11 +199,33 @@ metadata_fdr_rbd <- metadata %>% filter(Group == "RBD_FDR" | Group == "RBD")
 which(colnames(metadata_fdr_rbd)=="rel_g001")
 which(colnames(metadata_fdr_rbd)=="rel_g249")
 otu_fdr_rbd <- metadata_fdr_rbd[ , c(28:276)]
+row.names(otu_fdr_rbd) <- metadata_fdr_rbd$Sample_ID
 dis_fdr_rbd <- vegdist(otu_fdr_rbd, method = 'bray')
-adonis_group_fdr_rbd <- adonis2(dis_fdr_rbd~Group+age+gender, metadata_fdr_rbd, permutations = 99999)
+adonis_group_fdr_rbd <- adonis2(dis_fdr_rbd~Group+age+sex, metadata_fdr_rbd, permutations = 99999)
 adonis_group_fdr_rbd
 adonis_group_fdr_rbd <- adonis_group_fdr_rbd[1, ]
-row.names(adonis_group_fdr_rbd)[1] <- "RBDFDR_RBD"  
+row.names(adonis_group_fdr_rbd)[1] <- "RBDFDR_RBD" 
+
+# pcoa
+pcoa <- wcmdscale(dis_fdr_rbd, eig = T, x.ret = T, add = "cailliez")
+pcoa_eig <- (pcoa$eig)[1:2] / sum(pcoa$eig)
+sample_group <- data.frame({pcoa$point})[1:2]
+names(sample_group)[1:2] <- c('PCoA1', 'PCoA2')
+sample_group$Sample_ID <-row.names(sample_group)
+metadata_fdr_rbd <- merge(sample_group, metadata_fdr_rbd, by = 'Sample_ID')
+
+pcoa_fdr_rbd <- ggplot(metadata_fdr_rbd, aes(x = PCoA1, y = PCoA2, colour = Group)) +
+  scale_shape_manual(values = c(16, 16)) +
+  scale_color_manual(values = c("#8dadc7",'#1f7d94')) +
+  theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+  geom_point(aes(color = Group, shape = Group), size = 4, alpha = 0.9) +
+  labs(x = paste('PCoA1: ', round(100 * pcoa_eig[1], 2), '%'), y = paste('PCoA2: ', round(100 * pcoa_eig[2], 2), '%'))+
+  coord_fixed()+
+  theme(legend.position="none")+
+  stat_ellipse(level = 0.70, size = 1.5)+
+  xlim(-0.52, 0.69)
+pcoa_fdr_rbd
+
 
 # RBD-FDR vs Early PD
 
@@ -149,11 +233,32 @@ metadata_fdr_pd <- metadata %>% filter(Group == "RBD_FDR" | Group == "Early_PD")
 which(colnames(metadata_fdr_pd)=="rel_g001")
 which(colnames(metadata_fdr_pd)=="rel_g249")
 otu_fdr_pd <- metadata_fdr_pd[ , c(28:276)]
+row.names(otu_fdr_pd) <- metadata_fdr_pd$Sample_ID
 dis_fdr_pd <- vegdist(otu_fdr_pd, method = 'bray')
-adonis_group_fdr_pd <- adonis2(dis_fdr_pd~Group+age+gender, metadata_fdr_pd, permutations = 99999)
+adonis_group_fdr_pd <- adonis2(dis_fdr_pd~Group+age+sex, metadata_fdr_pd, permutations = 99999)
 adonis_group_fdr_pd
 adonis_group_fdr_pd <- adonis_group_fdr_pd[1, ]
-row.names(adonis_group_fdr_pd)[1] <- "RBDFDR_PD"  
+row.names(adonis_group_fdr_pd)[1] <- "RBDFDR_PD"
+
+# pcoa
+pcoa <- wcmdscale(dis_fdr_pd, eig = T, x.ret = T, add = "cailliez")
+pcoa_eig <- (pcoa$eig)[1:2] / sum(pcoa$eig)
+sample_group <- data.frame({pcoa$point})[1:2]
+names(sample_group)[1:2] <- c('PCoA1', 'PCoA2')
+sample_group$Sample_ID <-row.names(sample_group)
+metadata_fdr_pd <- merge(sample_group, metadata_fdr_pd, by = 'Sample_ID')
+
+pcoa_fdr_pd <- ggplot(metadata_fdr_pd, aes(x = PCoA1, y = PCoA2, colour = Group)) +
+  scale_shape_manual(values = c(16, 16)) +
+  scale_color_manual(values = c("#8dadc7",'#013540')) +
+  theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+  geom_point(aes(color = Group, shape = Group), size = 4, alpha = 0.9) +
+  labs(x = paste('PCoA1: ', round(100 * pcoa_eig[1], 2), '%'), y = paste('PCoA2: ', round(100 * pcoa_eig[2], 2), '%'))+
+  coord_fixed()+
+  theme(legend.position="none")+
+  stat_ellipse(level = 0.70, size = 1.5)+
+  xlim(-0.65, 0.44)
+pcoa_fdr_pd
 
 # RBD vs Early PD
 
@@ -161,11 +266,31 @@ metadata_rbd_pd <- metadata %>% filter(Group == "RBD" | Group == "Early_PD")
 which(colnames(metadata_rbd_pd)=="rel_g001")
 which(colnames(metadata_rbd_pd)=="rel_g249")
 otu_rbd_pd <- metadata_rbd_pd[ , c(28:276)]
+row.names(otu_rbd_pd) <- metadata_rbd_pd$Sample_ID
 dis_rbd_pd <- vegdist(otu_rbd_pd, method = 'bray')
-adonis_group_rbd_pd <- adonis2(dis_rbd_pd~Group+age+gender, metadata_rbd_pd, permutations = 99999)
+adonis_group_rbd_pd <- adonis2(dis_rbd_pd~Group+age+sex, metadata_rbd_pd, permutations = 99999)
 adonis_group_rbd_pd
 adonis_group_rbd_pd <- adonis_group_rbd_pd[1, ]
-row.names(adonis_group_rbd_pd)[1] <- "RBD_PD"  
+row.names(adonis_group_rbd_pd)[1] <- "RBD_PD"
+
+# pcoa
+pcoa <- wcmdscale(dis_rbd_pd, eig = T, x.ret = T, add = "cailliez")
+pcoa_eig <- (pcoa$eig)[1:2] / sum(pcoa$eig)
+sample_group <- data.frame({pcoa$point})[1:2]
+names(sample_group)[1:2] <- c('PCoA1', 'PCoA2')
+sample_group$Sample_ID <-row.names(sample_group)
+metadata_rbd_pd <- merge(sample_group, metadata_rbd_pd, by = 'Sample_ID')
+
+pcoa_rbd_pd <- ggplot(metadata_rbd_pd, aes(x = PCoA1, y = PCoA2, colour = Group)) +
+  scale_shape_manual(values = c(16, 16)) +
+  scale_color_manual(values = c('#1f7d94','#013540')) +
+  theme(panel.grid = element_blank(), panel.background = element_rect(color = 'black', fill = 'transparent')) +
+  geom_point(aes(color = Group, shape = Group), size = 4, alpha = 0.9) +
+  labs(x = paste('PCoA1: ', round(100 * pcoa_eig[1], 2), '%'), y = paste('PCoA2: ', round(100 * pcoa_eig[2], 2), '%'))+
+  coord_fixed()+
+  theme(legend.position="none")+
+  stat_ellipse(level = 0.70, size = 1.5)
+pcoa_rbd_pd
 
 # Adjust p values for multiple comparisons in the permanova tests
 
@@ -375,8 +500,6 @@ pcoa_faecalibacterium + geom_segment(x = 0, y = 0,
           
 
 
-
-
 ########################### Differential Abundance Analysis ###########################
 
 ## Microbiome multivariable associations with linear model (MaAsLin 2)
@@ -393,9 +516,18 @@ which(colnames(input_metadata)=="Akkermansia")
 input_data <- input_metadata[ , c(278:303)]
 
 fit_data_genus <- Maaslin2(
-  input_data, input_metadata, 'maaslin_output_group_genus', transform = "NONE",
+  input_data, input_metadata, 'maaslin_output_group_genus_unadjusted', transform = "NONE",
   fixed_effects = c('Group'),
-  random_effects = c('family_id','gender','age'),
+  random_effects = c('family_id'),
+  reference = "Group,Control",
+  normalization = 'NONE',
+  correction = "BH",
+  standardize = FALSE) 
+
+fit_data_genus <- Maaslin2(
+  input_data, input_metadata, 'maaslin_output_group_genus_adjusted', transform = "NONE",
+  fixed_effects = c('Group','sex','age'),
+  random_effects = c('family_id'),
   reference = "Group,Control",
   normalization = 'NONE',
   correction = "BH",
@@ -408,10 +540,20 @@ res_genus <- as.data.frame(fit_data_genus$results)
 which(colnames(input_metadata)=="Coriobacteriaceae")
 which(colnames(input_metadata)=="Sutterellaceae")
 input_data <- input_metadata[, c(366:381)]
+
 fit_data_family <- Maaslin2(
-  input_data, input_metadata, 'maaslin_output_group_family', transform = "NONE",
+  input_data, input_metadata, 'maaslin_output_group_family_unadjusted', transform = "NONE",
   fixed_effects = c('Group'),
-  random_effects = c('family_id','gender','age'),
+  random_effects = c('family_id'),
+  reference = "Group,Control",
+  normalization = 'NONE',
+  correction = "BH",
+  standardize = FALSE)
+
+fit_data_family <- Maaslin2(
+  input_data, input_metadata, 'maaslin_output_group_family_adjusted', transform = "NONE",
+  fixed_effects = c('Group','sex','age'),
+  random_effects = c('family_id'),
   reference = "Group,Control",
   normalization = 'NONE',
   correction = "BH",
@@ -419,8 +561,6 @@ fit_data_family <- Maaslin2(
 
 View(fit_data_family$results)
 res_family <- as.data.frame(fit_data_family$results)  
-
-
 
 
 ########################### Analysis of Host-Microbiome Interactions ###########################
@@ -437,9 +577,9 @@ dis <- vegdist(otu, method = 'bray')
 adonis_age <- adonis2(dis~age, metadata, permutations = 99999)
 adonis_age <-adonis_age[1,]
 row.names(adonis_age)[1] <- "age"  
-adonis_gender <- adonis2(dis~gender, metadata, permutations = 99999)
-adonis_gender <-adonis_gender[1,]
-row.names(adonis_gender)[1] <- "gender"  
+adonis_sex <- adonis2(dis~sex, metadata, permutations = 99999)
+adonis_sex <-adonis_sex[1,]
+row.names(adonis_sex)[1] <- "sex"  
 adonis_bmf_score <- adonis2(dis~BMF_score, metadata, permutations = 99999)
 adonis_bmf_score <-adonis_bmf_score[1,]
 row.names(adonis_bmf_score)[1] <- "bmf_score" 
@@ -468,28 +608,28 @@ adonis_dopamine_agonist <- adonis2(dis~Dopamine_agonist_2gp, metadata, permutati
 adonis_dopamine_agonist <-adonis_dopamine_agonist[1,]
 row.names(adonis_dopamine_agonist)[1] <- "dopamine_agonist" 
 
-p_sum <- rbind(adonis_age,adonis_gender,adonis_bmf_score,adonis_statin,adonis_ppi,adonis_laxative,
+p_sum <- rbind(adonis_age,adonis_sex,adonis_bmf_score,adonis_statin,adonis_ppi,adonis_laxative,
                adonis_antidepressant,adonis_benzodiazepine, adonis_carbidopa_levodopa,adonis_maob_inhibitor,
                adonis_dopamine_agonist)
 
 
 ## The effect of host factors in permanova pairwise comparisons 
 # Control vs RBD-FDR
-adonis_group_ctrl_fdr_cov <- adonis2(dis_ctrl_fdr~Group+age+gender+BMF_score+Statins_2gp+
+adonis_group_ctrl_fdr_cov <- adonis2(dis_ctrl_fdr~Group+age+sex+BMF_score+Statins_2gp+
                                    Proton_pump_inhibitors_2gp+Osmotic_laxative_2gp+
                                    Antidepressants_2gp+Benzodiazepines_2gp, metadata_ctrl_fdr, permutations = 99999)
 adonis_group_ctrl_fdr_cov
 adonis_group_ctrl_fdr_cov_padj <-p.adjust(adonis_group_ctrl_fdr_cov$`Pr(>F)`, method = "BH", n = length(adonis_group_ctrl_fdr_cov$`Pr(>F)`)-2)
 
 # Control vs RBD
-adonis_group_ctrl_rbd_cov <- adonis2(dis_ctrl_rbd~Group+age+gender+BMF_score+Statins_2gp+
+adonis_group_ctrl_rbd_cov <- adonis2(dis_ctrl_rbd~Group+age+sex+BMF_score+Statins_2gp+
                                        Proton_pump_inhibitors_2gp+Osmotic_laxative_2gp+
                                        Antidepressants_2gp+Benzodiazepines_2gp, metadata_ctrl_rbd, permutations = 99999)
 adonis_group_ctrl_rbd_cov
 adonis_group_ctrl_rbd_cov_padj <-p.adjust(adonis_group_ctrl_rbd_cov$`Pr(>F)`, method = "BH", n = length(adonis_group_ctrl_rbd_cov$`Pr(>F)`)-2)
 
 # Control vs Early PD
-adonis_group_ctrl_pd_cov <- adonis2(dis_ctrl_pd~Group+age+gender+BMF_score+Statins_2gp+
+adonis_group_ctrl_pd_cov <- adonis2(dis_ctrl_pd~Group+age+sex+BMF_score+Statins_2gp+
                                        Proton_pump_inhibitors_2gp+Osmotic_laxative_2gp+
                                        Antidepressants_2gp+Benzodiazepines_2gp+Carbidopa_Levodopa_2gp+
                                       MAOB_inhibitor_2gp+Dopamine_agonist_2gp, metadata_ctrl_pd, permutations = 99999)
@@ -497,14 +637,14 @@ adonis_group_ctrl_pd_cov
 adonis_group_ctrl_pd_cov_padj <-p.adjust(adonis_group_ctrl_pd_cov$`Pr(>F)`, method = "BH", n = length(adonis_group_ctrl_pd_cov$`Pr(>F)`)-2)
 
 # RBD-FDR vs RBD
-adonis_group_fdr_rbd_cov <- adonis2(dis_fdr_rbd~Group+age+gender+BMF_score+Statins_2gp+
+adonis_group_fdr_rbd_cov <- adonis2(dis_fdr_rbd~Group+age+sex+BMF_score+Statins_2gp+
                                        Proton_pump_inhibitors_2gp+Osmotic_laxative_2gp+
                                        Antidepressants_2gp+Benzodiazepines_2gp, metadata_fdr_rbd, permutations = 99999)
 adonis_group_fdr_rbd_cov
 adonis_group_fdr_rbd_cov_padj <-p.adjust(adonis_group_fdr_rbd_cov$`Pr(>F)`, method = "BH", n = length(adonis_group_fdr_rbd_cov$`Pr(>F)`)-2)
 
 # RBD-FDR vs Early PD
-adonis_group_fdr_pd_cov <- adonis2(dis_fdr_pd~Group+age+gender+BMF_score+Statins_2gp+
+adonis_group_fdr_pd_cov <- adonis2(dis_fdr_pd~Group+age+sex+BMF_score+Statins_2gp+
                                       Proton_pump_inhibitors_2gp+Osmotic_laxative_2gp+
                                       Antidepressants_2gp+Benzodiazepines_2gp+Carbidopa_Levodopa_2gp+
                                       MAOB_inhibitor_2gp+Dopamine_agonist_2gp, metadata_fdr_pd, permutations = 99999)
@@ -512,7 +652,7 @@ adonis_group_fdr_pd_cov
 adonis_group_fdr_pd_cov_padj <-p.adjust(adonis_group_fdr_pd_cov$`Pr(>F)`, method = "BH", n = length(adonis_group_fdr_pd_cov$`Pr(>F)`)-2)
 
 # RBD vs Early PD
-adonis_group_rbd_pd_cov <- adonis2(dis_rbd_pd~Group+age+gender+BMF_score+Statins_2gp+
+adonis_group_rbd_pd_cov <- adonis2(dis_rbd_pd~Group+age+sex+BMF_score+Statins_2gp+
                                      Proton_pump_inhibitors_2gp+Osmotic_laxative_2gp+
                                      Antidepressants_2gp+Benzodiazepines_2gp+Carbidopa_Levodopa_2gp+
                                      MAOB_inhibitor_2gp+Dopamine_agonist_2gp, metadata_rbd_pd, permutations = 99999)
@@ -529,7 +669,7 @@ input_data <- input_metadata[ , c(277:302)]
 
 fit_data_genus_cov <- Maaslin2(
   input_data, input_metadata, 'maaslin_output_group_genus_cov', transform = "NONE",
-  fixed_effects = c('Group', "Statins_2gp",'gender','age','CAQ_constipation_frequency_ADJUSTED',"Proton_pump_inhibitors_2gp","Osmotic_laxative_2gp", 
+  fixed_effects = c('Group', "Statins_2gp",'sex','age','CAQ_constipation_frequency_ADJUSTED',"Proton_pump_inhibitors_2gp","Osmotic_laxative_2gp", 
                     "Antidepressants_2gp", "Benzodiazepines_2gp"), 
   random_effects = c('family_id'),
   reference = "Group,Control",
@@ -547,7 +687,7 @@ input_data <- input_metadata[, c(365:380)]
 
 fit_data_family_cov <- Maaslin2(
   input_data, input_metadata, 'maaslin_output_group_family_cov', transform = "NONE",
-  fixed_effects = c('Group', "Statins_2gp",'gender','age','CAQ_constipation_frequency_ADJUSTED',"Proton_pump_inhibitors_2gp","Osmotic_laxative_2gp", 
+  fixed_effects = c('Group', "Statins_2gp",'sex','age','CAQ_constipation_frequency_ADJUSTED',"Proton_pump_inhibitors_2gp","Osmotic_laxative_2gp", 
                     "Antidepressants_2gp", "Benzodiazepines_2gp"), 
   random_effects = c('family_id'),
   reference = "Group, Control",
@@ -600,152 +740,1221 @@ library(caret)
 library(vegan)
 library(ggplot2)
 library(plyr)
-metadata <- read.csv('./metadata.csv')
 
+# The below code only demonstrate random forest model for classification of control and RBD 
+ctrl <- rfeControl(functions = rfFuncs,
+                   method = "repeatedcv",
+                   number = 10,
+                   repeats = 25,
+                   verbose = FALSE)
+subsets <- c(1:88)
+
+# Repeat 01 #
+metadata <- read.csv('./metadata.csv')
 metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
 metadata$Group <- as.factor(metadata$Group)
 
-# Train_test_split (7:3)
-# Stratification - returns training and test subsets that have the same proportions of RBD and controls
-p <- 0.7 
+p <- 0.8
 strats <- metadata$Group 
 
 rr <- split(1:length(strats), strats)
 idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
 
-otu_train <- metadata[idx, ]
-otu_test <- metadata[-idx, ]
-
-# Check the results of data split
-table(metadata$Group) / nrow(metadata)
-table(otu_train$Group) / nrow(otu_train)
-table(otu_test$Group) / nrow(otu_test)
-
-## Using microbial markers to predict RBD status
-which(colnames(metadata)=="Group")
-which(colnames(metadata)=="Collinsella")
-which(colnames(metadata)=="Klebsiella")
-
-otu_train_m <- otu_train[, c(3,277:364)]
-otu_test_m <- otu_test[, c(3,277:364)]
-
-# Feature selection on the training data set
-# based on the method of recursive feature elimination (RFE),
-# Outer resampling method: Cross-Validated (10 fold, repeated 5 times)
-
-set.seed(42)
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
-y <- otu_train_m$Group
-x <- otu_train_m[, 2:89]
-lmProfile <- rfe(x, y,
-                 sizes = subsets,
-                 rfeControl = ctrl)
-lmProfile
-predictors(lmProfile) # selected predictors in the final model
-lmProfile$fit
-plot(lmProfile, type = c("g", "o")) # the performance profile across different subset sizes
-importance_otu <- as.data.frame(lmProfile$fit$importance)
-head(importance_otu)
-
-otu_select <- rownames(importance_otu)[1:20] # based on the number of selected predictors
-otu_train_m_select <- otu_train_m[ ,c(otu_select, 'Group')]
-otu_test_m_select <- otu_test_m[ ,c(otu_select, 'Group')]
-
-# Prediction results of the final model
-predictions <- as.data.frame(lmProfile$fit$votes)
-predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
-predictions$observed <- otu_train_m_select$Group
-head(predictions)
-predictions$predict <- as.ordered(predictions$predict)
-caret::confusionMatrix(table(predictions$predict, predictions$observed))
-
-# Prediction result of the test set
-predictions <- as.data.frame(predict(lmProfile$fit, otu_test_m_select, type = "prob"))
-predictions
-
-predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
-predictions$observed <- otu_test_m_select$Group 
-head(predictions)
-caret::confusionMatrix(table(predictions$predict, predictions$observed))
-
-# Importance bar plots (Figure 4A)
-
-importance_otu$genus <- row.names(importance_otu)
-head(importance_otu)
-
-otuimportance_barplot <- ggplot(importance_otu, aes(x = genus, y = MeanDecreaseGini, fill = MeanDecreaseGini))+
-  geom_bar(stat="identity", width=0.8)+
-  xlab("")+
-  theme_minimal()+
-  theme(plot.margin = unit(c(0.05,0.01,0.01,0.01), "cm"))+
-  font("ylab", size = 13)+
-  font("xlab", size = 13)+
-  font("x.text", size = 10, color = "#000000")+
-  font("y.text", size = 10, color = "#000000")+
-  theme(legend.text=element_text(size=10), legend.key = element_rect(fill = 'transparent'), legend.title = element_blank())
-otuimportance_barplot
-
-
-otuimportance_barplot <- otuimportance_barplot+scale_x_discrete(limits=c('Butyricimonas','Agathobacter',
-                                                                         'Unclassified_Ruminococcaceae_g062','Akkermansia','Lachnospira','Roseburia','UBA1819',
-                                                                         'Negativibacillus', 'Uncultured_Oscillospiraceae_g061','Subdoligranulum',
-                                                                         'Lachnoclostridium',
-                                                                         'Oscillospiraceae_UCG.002','Monoglobus',
-                                                                         'X.Ruminococcus._torques_group','X.Eubacterium._ventriosum_group', 
-                                                                         'Butyricicoccus')) # depend on the feature selection results
-otuimportance_barplot 
-
-otuimportance_barplot <- otuimportance_barplot + coord_flip()
-otuimportance_barplot
-
-
-## Using total likelihood ratio of prodromal PD (exclude RBD item) to predict RBD status
-
-which(colnames(metadata)=="Group")
-which(colnames(metadata)=="LR_prodromal_pd_excluding_RBD_LGtransition")
-
-otu_train_lr<- otu_train[, c(3,23)]
-otu_test_lr<- otu_test[, c(3,23)]
-
+otu_train_0.8_01 <- metadata[idx, ]
+otu_test_0.8_01 <- metadata[-idx, ]
+otu_train_m_0.8_01 <- otu_train_0.8_01[, c(3,277:364)]
+otu_test_m_0.8_01 <- otu_test_0.8_01[, c(3,277:364)]
+y <- otu_train_m_0.8_01$Group
+x <- otu_train_m_0.8_01[, 2:89]
 set.seed(123)
-fitControl1 <- trainControl(method = "repeatedcv", number = 10, repeats=25, search = "random", savePredictions = T)
-modelFitrf <- train(Group ~ ., data = otu_train_lr, method = "rf", trControl = fitControl1, tuneLength = 10, ntree = 2000)
+lmProfile_0.8_01<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_01
+importance_otu_0.8_01 <- as.data.frame(lmProfile_0.8_01$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_01)[1:20]
+otu_train_m_select_0.8_01 <- otu_train_m_0.8_01[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_01 <- otu_test_m_0.8_01[ ,c(otu_select, 'Group')]
 
 # Prediction results of the final model
-predictions <- as.data.frame(modelFitrf$finalModel$votes)
+predictions <- as.data.frame(lmProfile_0.8_01$fit$votes)
 predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
-predictions$observed <- otu_train_lr$Group
-head(predictions)
+predictions$observed <- otu_train_m_select_0.8_01$Group
 predictions$predict <- as.ordered(predictions$predict)
-caret::confusionMatrix(table(predictions$predict, predictions$observed))
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
 
 # Prediction result of the test set
-predictions <- as.data.frame(predict(modelFitrf$finalModel, otu_test_lr, type = "prob"))
+predictions <- as.data.frame(predict(lmProfile_0.8_01$fit, otu_test_m_select_0.8_01, type = "prob"))
 predictions
 predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
-predictions$observed <- otu_test_lr$Group
-head(predictions)
-predictions$predict <- as.ordered(predictions$predict)
-caret::confusionMatrix(table(predictions$predict, predictions$observed))
-
+predictions$observed <- otu_test_m_select_0.8_01$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
 
 # ROC plot
 roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
                direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
                thresholds="best", print.thres="best")
-auc(roc.RBD)
-ci.auc(roc.RBD)
-ci.se(roc.RBD)
-plot(roc.RBD, print.auc=TRUE) # print the area under the curve (AUC)
-plot.roc.RBD <- ci.se(roc.RBD, specificities=seq(0, 100, 5)) # compute the confidence interval of sensitivities at given specificities
-plot(plot.roc.RBD, type="shape", col="#6DFFE7") # print the confidence interval
 
+# Repeat 02 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
 
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_02 <- metadata[idx, ]
+otu_test_0.8_02 <- metadata[-idx, ]
+otu_train_m_0.8_02 <- otu_train_0.8_02[, c(3,277:364)]
+otu_test_m_0.8_02 <- otu_test_0.8_02[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_02$Group
+x <- otu_train_m_0.8_02[, 2:89]
+
+lmProfile_0.8_02<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_02
+importance_otu_0.8_02 <- as.data.frame(lmProfile_0.8_02$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_02)[1:19]
+otu_train_m_select_0.8_02 <- otu_train_m_0.8_02[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_02 <- otu_test_m_0.8_02[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_02$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_02$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_02$fit, otu_test_m_select_0.8_02, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_02$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
                                      
+# Repeat 03 #
+metadata <- read.csv('./metadata.csv')
+
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_03 <- metadata[idx, ]
+otu_test_0.8_03 <- metadata[-idx, ]
+otu_train_m_0.8_03 <- otu_train_0.8_03[, c(3,277:364)]
+otu_test_m_0.8_03 <- otu_test_0.8_03[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_03$Group
+x <- otu_train_m_0.8_03[, 2:89]
+
+lmProfile_0.8_03<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_03
+importance_otu_0.8_03 <- as.data.frame(lmProfile_0.8_03$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_03)[1:9]
+otu_train_m_select_0.8_03 <- otu_train_m_0.8_03[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_03 <- otu_test_m_0.8_03[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_03$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_03$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_03$fit, otu_test_m_select_0.8_03, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_03$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+                                     
+# Repeat 04 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_04 <- metadata[idx, ]
+otu_test_0.8_04 <- metadata[-idx, ]
+otu_train_m_0.8_04 <- otu_train_0.8_04[, c(3,277:364)]
+otu_test_m_0.8_04 <- otu_test_0.8_04[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_04$Group
+x <- otu_train_m_0.8_04[, 2:89]
+
+lmProfile_0.8_04<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_04
+importance_otu_0.8_04 <- as.data.frame(lmProfile_0.8_04$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_04)[1:10] # based on the number of selected predictors
+otu_train_m_select_0.8_04 <- otu_train_m_0.8_04[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_04 <- otu_test_m_0.8_04[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_04$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_04$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_04$fit, otu_test_m_select_0.8_04, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_04$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+                                     
+# Repeat 05 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_05 <- metadata[idx, ]
+otu_test_0.8_05 <- metadata[-idx, ]
+otu_train_m_0.8_05 <- otu_train_0.8_05[, c(3,277:364)]
+otu_test_m_0.8_05 <- otu_test_0.8_05[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_05$Group
+x <- otu_train_m_0.8_05[, 2:89]
+
+lmProfile_0.8_05<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_05
+importance_otu_0.8_05 <- as.data.frame(lmProfile_0.8_05$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_05)[1:32]
+otu_train_m_select_0.8_05 <- otu_train_m_0.8_05[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_05 <- otu_test_m_0.8_05[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_05$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_05$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_05$fit, otu_test_m_select_0.8_05, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_05$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+                                     
+# Repeat 06 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_06 <- metadata[idx, ]
+otu_test_0.8_06 <- metadata[-idx, ]
+otu_train_m_0.8_06 <- otu_train_0.8_06[, c(3,277:364)]
+otu_test_m_0.8_06 <- otu_test_0.8_06[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_06$Group
+x <- otu_train_m_0.8_06[, 2:89]
+
+lmProfile_0.8_06<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_06
+importance_otu_0.8_06 <- as.data.frame(lmProfile_0.8_06$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_06)[1:14]
+otu_train_m_select_0.8_06 <- otu_train_m_0.8_06[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_06 <- otu_test_m_0.8_06[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_06$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_06$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_06$fit, otu_test_m_select_0.8_06, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_06$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+                                     
+# Repeat 07 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_07 <- metadata[idx, ]
+otu_test_0.8_07 <- metadata[-idx, ]
+otu_train_m_0.8_07 <- otu_train_0.8_07[, c(3,277:364)]
+otu_test_m_0.8_07 <- otu_test_0.8_07[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_07$Group
+x <- otu_train_m_0.8_07[, 2:89]
+
+lmProfile_0.8_07<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_07
+importance_otu_0.8_07 <- as.data.frame(lmProfile_0.8_07$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_07)[1:10]
+otu_train_m_select_0.8_07 <- otu_train_m_0.8_07[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_07 <- otu_test_m_0.8_07[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_07$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_07$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_07$fit, otu_test_m_select_0.8_07, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_07$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 08 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_08 <- metadata[idx, ]
+otu_test_0.8_08 <- metadata[-idx, ]
+otu_train_m_0.8_08 <- otu_train_0.8_08[, c(3,277:364)]
+otu_test_m_0.8_08 <- otu_test_0.8_08[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_08$Group
+x <- otu_train_m_0.8_08[, 2:89]
+
+lmProfile_0.8_08<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_08
+importance_otu_0.8_08 <- as.data.frame(lmProfile_0.8_08$fit$importance)
+otu_select <- rownames(importance_otu_0.8_08)[1:13]
+otu_train_m_select_0.8_08 <- otu_train_m_0.8_08[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_08 <- otu_test_m_0.8_08[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_08$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_08$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_08$fit, otu_test_m_select_0.8_08, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_08$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+                                     
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 09 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_09 <- metadata[idx, ]
+otu_test_0.8_09 <- metadata[-idx, ]
+otu_train_m_0.8_09 <- otu_train_0.8_09[, c(3,277:364)]
+otu_test_m_0.8_09 <- otu_test_0.8_09[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_09$Group
+x <- otu_train_m_0.8_09[, 2:89]
+
+lmProfile_0.8_09<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_09
+importance_otu_0.8_09 <- as.data.frame(lmProfile_0.8_09$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_09)[1:31]
+otu_train_m_select_0.8_09 <- otu_train_m_0.8_09[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_09 <- otu_test_m_0.8_09[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_09$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_09$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_09$fit, otu_test_m_select_0.8_09, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_09$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 10 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_10 <- metadata[idx, ]
+otu_test_0.8_10 <- metadata[-idx, ]
+otu_train_m_0.8_10 <- otu_train_0.8_10[, c(3,277:364)]
+otu_test_m_0.8_10 <- otu_test_0.8_10[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_10$Group
+x <- otu_train_m_0.8_10[, 2:89]
+
+lmProfile_0.8_10<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_10
+importance_otu_0.8_10 <- as.data.frame(lmProfile_0.8_10$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_10)[1:15]
+otu_train_m_select_0.8_10 <- otu_train_m_0.8_10[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_10 <- otu_test_m_0.8_10[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_10$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_10$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_10$fit, otu_test_m_select_0.8_10, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_10$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 11 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_11 <- metadata[idx, ]
+otu_test_0.8_11 <- metadata[-idx, ]
+otu_train_m_0.8_11 <- otu_train_0.8_11[, c(3,277:364)]
+otu_test_m_0.8_11 <- otu_test_0.8_11[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_11$Group
+x <- otu_train_m_0.8_11[, 2:89]
+
+lmProfile_0.8_11<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_11
+importance_otu_0.8_11 <- as.data.frame(lmProfile_0.8_11$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_11)[1:12]
+otu_train_m_select_0.8_11 <- otu_train_m_0.8_11[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_11 <- otu_test_m_0.8_11[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_11$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_11$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_11$fit, otu_test_m_select_0.8_11, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_11$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+                                     
+# Repeat 12 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_12 <- metadata[idx, ]
+otu_test_0.8_12 <- metadata[-idx, ]
+otu_train_m_0.8_12 <- otu_train_0.8_12[, c(3,277:364)]
+otu_test_m_0.8_12 <- otu_test_0.8_12[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_12$Group
+x <- otu_train_m_0.8_12[, 2:89]
+
+lmProfile_0.8_12<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_12
+importance_otu_0.8_12 <- as.data.frame(lmProfile_0.8_12$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_12)[1:14]
+otu_train_m_select_0.8_12 <- otu_train_m_0.8_12[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_12 <- otu_test_m_0.8_12[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_12$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_12$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_12$fit, otu_test_m_select_0.8_12, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_12$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 13 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_13 <- metadata[idx, ]
+otu_test_0.8_13 <- metadata[-idx, ]
+otu_train_m_0.8_13 <- otu_train_0.8_13[, c(3,277:364)]
+otu_test_m_0.8_13 <- otu_test_0.8_13[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_13$Group
+x <- otu_train_m_0.8_13[, 2:89]
+
+lmProfile_0.8_13<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_13
+importance_otu_0.8_13 <- as.data.frame(lmProfile_0.8_13$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_13)[1:17]
+otu_train_m_select_0.8_13 <- otu_train_m_0.8_13[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_13 <- otu_test_m_0.8_13[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_13$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_13$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_13$fit, otu_test_m_select_0.8_13, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_13$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 14 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_14 <- metadata[idx, ]
+otu_test_0.8_14 <- metadata[-idx, ]
+otu_train_m_0.8_14 <- otu_train_0.8_14[, c(3,277:364)]
+otu_test_m_0.8_14 <- otu_test_0.8_14[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_14$Group
+x <- otu_train_m_0.8_14[, 2:89]
+
+lmProfile_0.8_14<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_14
+importance_otu_0.8_14 <- as.data.frame(lmProfile_0.8_14$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_14)[1:12]
+otu_train_m_select_0.8_14 <- otu_train_m_0.8_14[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_14 <- otu_test_m_0.8_14[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_14$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_14$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_14$fit, otu_test_m_select_0.8_14, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_14$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 15 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_15 <- metadata[idx, ]
+otu_test_0.8_15 <- metadata[-idx, ]
+otu_train_m_0.8_15 <- otu_train_0.8_15[, c(3,277:364)]
+otu_test_m_0.8_15 <- otu_test_0.8_15[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_15$Group
+x <- otu_train_m_0.8_15[, 2:89]
+
+lmProfile_0.8_15<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_15
+importance_otu_0.8_15 <- as.data.frame(lmProfile_0.8_15$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_15)[1:17]
+otu_train_m_select_0.8_15 <- otu_train_m_0.8_15[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_15 <- otu_test_m_0.8_15[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_15$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_15$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_15$fit, otu_test_m_select_0.8_15, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_15$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 16 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_16 <- metadata[idx, ]
+otu_test_0.8_16 <- metadata[-idx, ]
+otu_train_m_0.8_16 <- otu_train_0.8_16[, c(3,277:364)]
+otu_test_m_0.8_16 <- otu_test_0.8_16[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_16$Group
+x <- otu_train_m_0.8_16[, 2:89]
+
+lmProfile_0.8_16<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_16
+importance_otu_0.8_16 <- as.data.frame(lmProfile_0.8_16$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_16)[1:13]
+otu_train_m_select_0.8_16 <- otu_train_m_0.8_16[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_16 <- otu_test_m_0.8_16[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_16$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_16$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_16$fit, otu_test_m_select_0.8_16, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_16$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 17 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_17 <- metadata[idx, ]
+otu_test_0.8_17 <- metadata[-idx, ]
+otu_train_m_0.8_17 <- otu_train_0.8_17[, c(3,277:364)]
+otu_test_m_0.8_17 <- otu_test_0.8_17[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_17$Group
+x <- otu_train_m_0.8_17[, 2:89]
+
+lmProfile_0.8_17<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_17
+importance_otu_0.8_17 <- as.data.frame(lmProfile_0.8_17$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_17)[1:15]
+otu_train_m_select_0.8_17 <- otu_train_m_0.8_17[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_17 <- otu_test_m_0.8_17[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_17$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_17$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_17$fit, otu_test_m_select_0.8_17, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_17$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 18 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_18 <- metadata[idx, ]
+otu_test_0.8_18 <- metadata[-idx, ]
+otu_train_m_0.8_18 <- otu_train_0.8_18[, c(3,277:364)]
+otu_test_m_0.8_18 <- otu_test_0.8_18[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_18$Group
+x <- otu_train_m_0.8_18[, 2:89]
+
+lmProfile_0.8_18<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_18
+importance_otu_0.8_18 <- as.data.frame(lmProfile_0.8_18$fit$importance)
+
+resample <- c("0.8-18")
+importance_otu_0.8_18 <- cbind(resample, importance_otu_0.8_18)
+importance_otu_0.8_18$predictors <- row.names(importance_otu_0.8_18)
+
+otu_select <- rownames(importance_otu_0.8_18)[1:19]
+otu_train_m_select_0.8_18 <- otu_train_m_0.8_18[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_18 <- otu_test_m_0.8_18[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_18$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_18$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_18$fit, otu_test_m_select_0.8_18, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_18$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 19 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_19 <- metadata[idx, ]
+otu_test_0.8_19 <- metadata[-idx, ]
+otu_train_m_0.8_19 <- otu_train_0.8_19[, c(3,277:364)]
+otu_test_m_0.8_19 <- otu_test_0.8_19[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_19$Group
+x <- otu_train_m_0.8_19[, 2:89]
+
+lmProfile_0.8_19<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_19
+importance_otu_0.8_19 <- as.data.frame(lmProfile_0.8_19$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_19)[1:28]
+otu_train_m_select_0.8_19 <- otu_train_m_0.8_19[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_19 <- otu_test_m_0.8_19[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_19$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_19$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_19$fit, otu_test_m_select_0.8_19, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_19$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 20 #
+metadata <- read.csv('./metadata.csv')
+
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_20 <- metadata[idx, ]
+otu_test_0.8_20 <- metadata[-idx, ]
+otu_train_m_0.8_20 <- otu_train_0.8_20[, c(3,277:364)]
+otu_test_m_0.8_20 <- otu_test_0.8_20[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_20$Group
+x <- otu_train_m_0.8_20[, 2:89]
+
+lmProfile_0.8_20<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_20
+importance_otu_0.8_20 <- as.data.frame(lmProfile_0.8_20$fit$importance)
+otu_select <- rownames(importance_otu_0.8_20)[1:12]
+otu_train_m_select_0.8_20 <- otu_train_m_0.8_20[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_20 <- otu_test_m_0.8_20[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_20$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_20$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_20$fit, otu_test_m_select_0.8_20, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_20$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 21 #
+metadata <- read.csv('./metadata.csv')
+
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_21 <- metadata[idx, ]
+otu_test_0.8_21 <- metadata[-idx, ]
+otu_train_m_0.8_21 <- otu_train_0.8_21[, c(3,277:364)]
+otu_test_m_0.8_21 <- otu_test_0.8_21[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_21$Group
+x <- otu_train_m_0.8_21[, 2:89]
+
+lmProfile_0.8_21<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_21
+importance_otu_0.8_21 <- as.data.frame(lmProfile_0.8_21$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_21)[1:23]
+otu_train_m_select_0.8_21 <- otu_train_m_0.8_21[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_21 <- otu_test_m_0.8_21[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_21$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_21$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_21$fit, otu_test_m_select_0.8_21, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_21$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 22 #
+metadata <- read.csv('./metadata.csv')
+
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_22 <- metadata[idx, ]
+otu_test_0.8_22 <- metadata[-idx, ]
+otu_train_m_0.8_22 <- otu_train_0.8_22[, c(3,277:364)]
+otu_test_m_0.8_22 <- otu_test_0.8_22[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_22$Group
+x <- otu_train_m_0.8_22[, 2:89]
+
+lmProfile_0.8_22<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_22
+importance_otu_0.8_22 <- as.data.frame(lmProfile_0.8_22$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_22)[1:13]
+otu_train_m_select_0.8_22 <- otu_train_m_0.8_22[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_22 <- otu_test_m_0.8_22[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_22$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_22$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_22$fit, otu_test_m_select_0.8_22, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_22$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 23 #
+metadata <- read.csv('./metadata.csv')
+
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_23 <- metadata[idx, ]
+otu_test_0.8_23 <- metadata[-idx, ]
+otu_train_m_0.8_23 <- otu_train_0.8_23[, c(3,277:364)]
+otu_test_m_0.8_23 <- otu_test_0.8_23[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_23$Group
+x <- otu_train_m_0.8_23[, 2:89]
+
+lmProfile_0.8_23<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_23
+
+importance_otu_0.8_23 <- as.data.frame(lmProfile_0.8_23$fit$importance)
+otu_select <- rownames(importance_otu_0.8_23)[1:27]
+otu_train_m_select_0.8_23 <- otu_train_m_0.8_23[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_23 <- otu_test_m_0.8_23[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_23$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_23$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_23$fit, otu_test_m_select_0.8_23, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_23$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 24 #
+metadata <- read.csv('./metadata.csv')
+
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_24 <- metadata[idx, ]
+otu_test_0.8_24 <- metadata[-idx, ]
+otu_train_m_0.8_24 <- otu_train_0.8_24[, c(3,277:364)]
+otu_test_m_0.8_24 <- otu_test_0.8_24[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_24$Group
+x <- otu_train_m_0.8_24[, 2:89]
+
+lmProfile_0.8_24<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_24
+importance_otu_0.8_24 <- as.data.frame(lmProfile_0.8_24$fit$importance)
+
+otu_select <- rownames(importance_otu_0.8_24)[1:11]
+otu_train_m_select_0.8_24 <- otu_train_m_0.8_24[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_24 <- otu_test_m_0.8_24[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_24$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_24$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_24$fit, otu_test_m_select_0.8_24, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_24$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
+# Repeat 25 #
+metadata <- read.csv('./metadata.csv')
+metadata <- metadata %>% filter(Group == "RBD" | Group == "Control")
+metadata$Group <- as.factor(metadata$Group)
+
+p <- 0.8
+strats <- metadata$Group 
+
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, function(x) sample(x, length(x) * p)))))
+
+otu_train_0.8_25 <- metadata[idx, ]
+otu_test_0.8_25 <- metadata[-idx, ]
+otu_train_m_0.8_25 <- otu_train_0.8_25[, c(3,277:364)]
+otu_test_m_0.8_25 <- otu_test_0.8_25[, c(3,277:364)]
+set.seed(123)
+y <- otu_train_m_0.8_25$Group
+x <- otu_train_m_0.8_25[, 2:89]
+
+lmProfile_0.8_25<- rfe(x, y,
+                       sizes = subsets,
+                       rfeControl = ctrl)
+lmProfile_0.8_25
+importance_otu_0.8_25 <- as.data.frame(lmProfile_0.8_25$fit$importance)
+otu_select <- rownames(importance_otu_0.8_25)[1:16]
+otu_train_m_select_0.8_25 <- otu_train_m_0.8_25[ ,c(otu_select, 'Group')]
+otu_test_m_select_0.8_25 <- otu_test_m_0.8_25[ ,c(otu_select, 'Group')]
+
+# Prediction results of the final model
+predictions <- as.data.frame(lmProfile_0.8_25$fit$votes)
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_train_m_select_0.8_25$Group
+predictions$predict <- as.ordered(predictions$predict)
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# Prediction result of the test set
+predictions <- as.data.frame(predict(lmProfile_0.8_25$fit, otu_test_m_select_0.8_25, type = "prob"))
+predictions
+predictions$predict <- names(predictions)[1:2][apply(predictions[,1:2], 1, which.max)]
+predictions$observed <- otu_test_m_select_0.8_25$Group
+model_confusionMatrix <- caret::confusionMatrix(table(predictions$predict, predictions$observed))
+
+# ROC plot
+roc.RBD <- roc(ifelse(predictions$observed=="RBD", "RBD", "Control"), as.numeric(predictions$RBD), plot = TRUE,
+               direction = "<", levels = c("Control", "RBD"), percent = TRUE, xlab = "False Positive Percentage", ylab = "True Positive Percentage", legacy.axes = TRUE,
+               thresholds="best", print.thres="best")
+
 ########################### Mediation Analysis ###########################
 
 library(mediation)
@@ -826,10 +2035,19 @@ input_data <- input_metadata[ , c(381:398)]
 
 # Correlations of pathway abundance with early stages of alpha-synucleinopathy
 fit_data_pathway <- Maaslin2(
-  input_data, input_metadata, 'maaslin_output_group_pathway', transform = "NONE",
+  input_data, input_metadata, 'maaslin_output_group_pathway_unadjusted', transform = "NONE",
   fixed_effects = c('Group'),
   reference = "Group, Control",
-  random_effects = c('family_id','gender','age'),
+  random_effects = c('family_id'),
+  normalization = 'NONE',
+  correction = "BH", # multiple comparison adjustment
+  standardize = FALSE)
+                                     
+fit_data_pathway <- Maaslin2(
+  input_data, input_metadata, 'maaslin_output_group_pathway_adjusted', transform = "NONE",
+  fixed_effects = c('Group','sex','age'),
+  reference = "Group, Control",
+  random_effects = c('family_id'),
   normalization = 'NONE',
   correction = "BH", # multiple comparison adjustment
   standardize = FALSE)
