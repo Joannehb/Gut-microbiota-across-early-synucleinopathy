@@ -2309,7 +2309,7 @@ library(mediation)
 metadata <- read.csv('./metadata.csv')
 which(colnames(metadata)=="rel_g001")
 which(colnames(metadata)=="rel_g249")
-otu <- metadata[ , c(28:276)]
+otu <- metadata[ , c(65:313)]
 row.names(otu) <- metadata$Sample_ID
 dis <- vegdist(otu, method = 'bray')
 pcoa <- wcmdscale(dis, eig = T, x.ret = T, add = "cailliez")
@@ -2379,7 +2379,7 @@ library(Maaslin2)
 input_metadata <- read.csv('./metadata.csv')
 which(colnames(input_metadata)=="COBALSYN.PWY")
 which(colnames(input_metadata)=="TCA")
-input_data <- input_metadata[ , c(381:398)]
+input_data <- input_metadata[ , c(418:435)]
 
 # Correlations of pathway abundance with early stages of alpha-synucleinopathy
 fit_data_pathway <- Maaslin2(
@@ -2422,7 +2422,7 @@ input_metadata <- read.csv('./metadata.csv')
 input_metadata <- input_metadata %>% filter(Group == "Early_PD")
 which(colnames(input_metadata)=="COBALSYN.PWY")
 which(colnames(input_metadata)=="TCA")
-input_data <- input_metadata[ , c(381:398)]
+input_data <- input_metadata[ , c(418:435)]
 
 
 fit_data_pathway_pd_drugs <- Maaslin2(
