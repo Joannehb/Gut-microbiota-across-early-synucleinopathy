@@ -1,10 +1,5 @@
 
 ########################### Random Forest classification ###########################
-##############################################################
-##############                    ############################
-##############  Control_RBD_0.8   ############################
-##############                    ############################
-##############################################################
 
 library(randomForest)
 library(pROC)
@@ -12,6 +7,12 @@ library(caret)
 library(vegan)
 library(ggplot2)
 library(plyr)
+
+#################################################################
+##############                                     ##############
+##############  Control_RBD_0.8_train/test_split   ##############
+##############                                     ##############
+#################################################################
 
 ctrl <- rfeControl(functions = rfFuncs,
                    method = "repeatedcv",
@@ -1363,7 +1364,7 @@ otu_test_m_0.8_22 <- otu_test_0.8_22[, c(3,314:401)]
 y <- otu_train_m_0.8_22$Group
 x <- otu_train_m_0.8_22[, 2:89]
 set.seed(345)
-lmProfile_0.8_22<- rfe(x, y,
+lmProfile_0.8_22 <- rfe(x, y,
                        sizes = subsets,
                        rfeControl = ctrl)
 lmProfile_0.8_22
@@ -1596,6 +1597,7 @@ accuracy_test_0.8_25 <- as.data.frame(model_confusionMatrix$overall)
 accuracy_test_0.8_25 <- cbind(resample, accuracy_test_0.8_25)
 
 ## ROC curve
+library(pROC)
 sen_speci_merged_final_control_RBD <- rbind(sen_speci_final_0.8_01, sen_speci_final_0.8_02, sen_speci_final_0.8_03, sen_speci_final_0.8_04
                                             , sen_speci_final_0.8_05, sen_speci_final_0.8_06, sen_speci_final_0.8_07, sen_speci_final_0.8_08
                                             , sen_speci_final_0.8_09, sen_speci_final_0.8_10, sen_speci_final_0.8_11, sen_speci_final_0.8_12
@@ -1620,7 +1622,7 @@ roc_control_RBD_test_per_sample <- ggplot(sen_speci_merged_test_control_RBD, aes
   geom_step() + geom_point() +
   theme(aspect.ratio = 1)
 
-library(pROC)
+
 predictions_test_RBD_control_all <- rbind(predictions_0.8_01, predictions_0.8_02,predictions_0.8_03,
                                           predictions_0.8_04,predictions_0.8_05,predictions_0.8_06,
                                           predictions_0.8_07,predictions_0.8_08,predictions_0.8_09,
@@ -1651,10 +1653,17 @@ roc_test_RBD_control_mean <-roc(ifelse(predictions_test_RBD_control_all$observed
                                 thresholds="best", print.thres="best")
 
 ##############################################################
-##############                  ##############################
-##############  FDR_RBD_0.8     ##############################
-##############                  ##############################
+##############                                  ##############
+##############  FDR_RBD_0.8_train/test_split    ##############
+##############                                  ##############
 ##############################################################
+
+ctrl <- rfeControl(functions = rfFuncs,
+                   method = "repeatedcv",
+                   number = 10,
+                   repeats = 25,
+                   verbose = FALSE)
+subsets <- c(1:88)
 
 # Repeat 01 #
 metadata <- read.csv('./metadata.csv')
@@ -1677,12 +1686,6 @@ otu_test_FDR_0.8_01 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_01 <- otu_train_FDR_0.8_01[, c(3,314:401)]
 otu_test_m_FDR_0.8_01 <- otu_test_FDR_0.8_01[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_01$Group
 x <- otu_train_m_FDR_0.8_01[, 2:89]
 set.seed(123)
@@ -1747,12 +1750,6 @@ otu_test_FDR_0.8_02 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_02 <- otu_train_FDR_0.8_02[, c(3,314:401)]
 otu_test_m_FDR_0.8_02 <- otu_test_FDR_0.8_02[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_02$Group
 x <- otu_train_m_FDR_0.8_02[, 2:89]
 set.seed(134)
@@ -1817,12 +1814,6 @@ otu_test_FDR_0.8_03 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_03 <- otu_train_FDR_0.8_03[, c(3,314:401)]
 otu_test_m_FDR_0.8_03 <- otu_test_FDR_0.8_03[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_03$Group
 x <- otu_train_m_FDR_0.8_03[, 2:89]
 set.seed(145)
@@ -1887,12 +1878,6 @@ otu_test_FDR_0.8_04 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_04 <- otu_train_FDR_0.8_04[, c(3,314:401)]
 otu_test_m_FDR_0.8_04 <- otu_test_FDR_0.8_04[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_04$Group
 x <- otu_train_m_FDR_0.8_04[, 2:89]
 set.seed(156)
@@ -1957,12 +1942,6 @@ otu_test_FDR_0.8_05 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_05 <- otu_train_FDR_0.8_05[, c(3,314:401)]
 otu_test_m_FDR_0.8_05 <- otu_test_FDR_0.8_05[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_05$Group
 x <- otu_train_m_FDR_0.8_05[, 2:89]
 set.seed(167)
@@ -2028,12 +2007,6 @@ otu_test_FDR_0.8_06 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_06 <- otu_train_FDR_0.8_06[, c(3,314:401)]
 otu_test_m_FDR_0.8_06 <- otu_test_FDR_0.8_06[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_06$Group
 x <- otu_train_m_FDR_0.8_06[, 2:89]
 set.seed(178)
@@ -2098,12 +2071,6 @@ otu_test_FDR_0.8_07 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_07 <- otu_train_FDR_0.8_07[, c(3,314:401)]
 otu_test_m_FDR_0.8_07 <- otu_test_FDR_0.8_07[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_07$Group
 x <- otu_train_m_FDR_0.8_07[, 2:89]
 set.seed(189)
@@ -2169,12 +2136,6 @@ otu_test_FDR_0.8_08 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_08 <- otu_train_FDR_0.8_08[, c(3,314:401)]
 otu_test_m_FDR_0.8_08 <- otu_test_FDR_0.8_08[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_08$Group
 x <- otu_train_m_FDR_0.8_08[, 2:89]
 set.seed(191)
@@ -2240,12 +2201,6 @@ otu_test_FDR_0.8_09 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_09 <- otu_train_FDR_0.8_09[, c(3,314:401)]
 otu_test_m_FDR_0.8_09 <- otu_test_FDR_0.8_09[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_09$Group
 x <- otu_train_m_FDR_0.8_09[, 2:89]
 set.seed(195)
@@ -2313,12 +2268,6 @@ otu_test_FDR_0.8_10 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_10 <- otu_train_FDR_0.8_10[, c(3,314:401)]
 otu_test_m_FDR_0.8_10 <- otu_test_FDR_0.8_10[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_10$Group
 x <- otu_train_m_FDR_0.8_10[, 2:89]
 set.seed(203)
@@ -2383,12 +2332,6 @@ otu_test_FDR_0.8_11 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_11 <- otu_train_FDR_0.8_11[, c(3,314:401)]
 otu_test_m_FDR_0.8_11 <- otu_test_FDR_0.8_11[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_11$Group
 x <- otu_train_m_FDR_0.8_11[, 2:89]
 set.seed(211)
@@ -2453,12 +2396,6 @@ otu_test_FDR_0.8_12 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_12 <- otu_train_FDR_0.8_12[, c(3,314:401)]
 otu_test_m_FDR_0.8_12 <- otu_test_FDR_0.8_12[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_12$Group
 x <- otu_train_m_FDR_0.8_12[, 2:89]
 set.seed(227)
@@ -2523,12 +2460,6 @@ otu_test_FDR_0.8_13 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_13 <- otu_train_FDR_0.8_13[, c(3,314:401)]
 otu_test_m_FDR_0.8_13 <- otu_test_FDR_0.8_13[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_13$Group
 x <- otu_train_m_FDR_0.8_13[, 2:89]
 set.seed(234)
@@ -2593,12 +2524,6 @@ otu_test_FDR_0.8_14 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_14 <- otu_train_FDR_0.8_14[, c(3,314:401)]
 otu_test_m_FDR_0.8_14 <- otu_test_FDR_0.8_14[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_14$Group
 x <- otu_train_m_FDR_0.8_14[, 2:89]
 set.seed(245)
@@ -2663,12 +2588,6 @@ otu_test_FDR_0.8_15 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_15 <- otu_train_FDR_0.8_15[, c(3,314:401)]
 otu_test_m_FDR_0.8_15 <- otu_test_FDR_0.8_15[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_15$Group
 x <- otu_train_m_FDR_0.8_15[, 2:89]
 set.seed(256)
@@ -2733,12 +2652,6 @@ otu_test_FDR_0.8_16 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_16 <- otu_train_FDR_0.8_16[, c(3,314:401)]
 otu_test_m_FDR_0.8_16 <- otu_test_FDR_0.8_16[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_16$Group
 x <- otu_train_m_FDR_0.8_16[, 2:89]
 set.seed(267)
@@ -2804,12 +2717,6 @@ otu_test_FDR_0.8_17 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_17 <- otu_train_FDR_0.8_17[, c(3,314:401)]
 otu_test_m_FDR_0.8_17 <- otu_test_FDR_0.8_17[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_17$Group
 x <- otu_train_m_FDR_0.8_17[, 2:89]
 set.seed(278)
@@ -2874,12 +2781,6 @@ otu_test_FDR_0.8_18 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_18 <- otu_train_FDR_0.8_18[, c(3,314:401)]
 otu_test_m_FDR_0.8_18 <- otu_test_FDR_0.8_18[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_18$Group
 x <- otu_train_m_FDR_0.8_18[, 2:89]
 set.seed(289)
@@ -2945,12 +2846,6 @@ otu_test_FDR_0.8_19 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_19 <- otu_train_FDR_0.8_19[, c(3,314:401)]
 otu_test_m_FDR_0.8_19 <- otu_test_FDR_0.8_19[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_19$Group
 x <- otu_train_m_FDR_0.8_19[, 2:89]
 set.seed(291)
@@ -3015,12 +2910,6 @@ otu_test_FDR_0.8_20 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_20 <- otu_train_FDR_0.8_20[, c(3,314:401)]
 otu_test_m_FDR_0.8_20 <- otu_test_FDR_0.8_20[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_20$Group
 x <- otu_train_m_FDR_0.8_20[, 2:89]
 set.seed(314)
@@ -3085,12 +2974,6 @@ otu_test_FDR_0.8_21 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_21 <- otu_train_FDR_0.8_21[, c(3,314:401)]
 otu_test_m_FDR_0.8_21 <- otu_test_FDR_0.8_21[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_21$Group
 x <- otu_train_m_FDR_0.8_21[, 2:89]
 set.seed(337)
@@ -3156,12 +3039,6 @@ otu_test_FDR_0.8_22 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_22 <- otu_train_FDR_0.8_22[, c(3,314:401)]
 otu_test_m_FDR_0.8_22 <- otu_test_FDR_0.8_22[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_22$Group
 x <- otu_train_m_FDR_0.8_22[, 2:89]
 set.seed(356)
@@ -3226,12 +3103,6 @@ otu_test_FDR_0.8_23 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_23 <- otu_train_FDR_0.8_23[, c(3,314:401)]
 otu_test_m_FDR_0.8_23 <- otu_test_FDR_0.8_23[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_23$Group
 x <- otu_train_m_FDR_0.8_23[, 2:89]
 set.seed(367)
@@ -3296,12 +3167,6 @@ otu_test_FDR_0.8_24 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_24 <- otu_train_FDR_0.8_24[, c(3,314:401)]
 otu_test_m_FDR_0.8_24 <- otu_test_FDR_0.8_24[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_24$Group
 x <- otu_train_m_FDR_0.8_24[, 2:89]
 set.seed(378)
@@ -3366,12 +3231,6 @@ otu_test_FDR_0.8_25 <- metadata[-idx, ]
 otu_train_m_FDR_0.8_25 <- otu_train_FDR_0.8_25[, c(3,314:401)]
 otu_test_m_FDR_0.8_25 <- otu_test_FDR_0.8_25[, c(3,314:401)]
 
-ctrl <- rfeControl(functions = rfFuncs,
-                   method = "repeatedcv",
-                   number = 10,
-                   repeats = 25,
-                   verbose = FALSE)
-subsets <- c(1:88)
 y <- otu_train_m_FDR_0.8_25$Group
 x <- otu_train_m_FDR_0.8_25[, 2:89]
 set.seed(389)
@@ -3420,20 +3279,20 @@ auc <- as.data.frame(auc(roc.RBD))
 auc_FDR_0.8_25 <- cbind(resample,auc)
 
 ## ROC curve
+library(pROC)
 sen_speci_merged_FDR_RBD_0.8 <- rbind(sen_speci_FDR_0.8_01, sen_speci_FDR_0.8_02, sen_speci_FDR_0.8_03, sen_speci_FDR_0.8_04
                                           , sen_speci_FDR_0.8_05, sen_speci_FDR_0.8_06, sen_speci_FDR_0.8_07, sen_speci_FDR_0.8_08
                                           , sen_speci_FDR_0.8_09, sen_speci_FDR_0.8_10, sen_speci_FDR_0.8_11, sen_speci_FDR_0.8_12
                                           , sen_speci_FDR_0.8_13, sen_speci_FDR_0.8_14, sen_speci_FDR_0.8_15, sen_speci_FDR_0.8_16
                                           , sen_speci_FDR_0.8_17, sen_speci_FDR_0.8_18, sen_speci_FDR_0.8_19, sen_speci_FDR_0.8_20
                                           , sen_speci_FDR_0.8_21, sen_speci_FDR_0.8_22, sen_speci_FDR_0.8_23, sen_speci_FDR_0.8_24, 
-                                      sen_speci_FDR_0.8_25)
+                                          sen_speci_FDR_0.8_25)
 
 
 roc_FDR_RBD_test_per_sample <- ggplot(sen_speci_merged_FDR_RBD_0.8, aes(x = 1-specificities, y = sensitivities)) + 
-  geom_step() + geom_point() +
-  theme(aspect.ratio = 1)
+         geom_step() + geom_point() +
+         theme(aspect.ratio = 1)
 
-library(pROC)
 predictions_test_FDR_RBD_all <- rbind(predictions_FDR_0.8_01, predictions_FDR_0.8_02,predictions_FDR_0.8_03,
                                           predictions_FDR_0.8_04,predictions_FDR_0.8_05,predictions_FDR_0.8_06,
                                           predictions_FDR_0.8_07,predictions_FDR_0.8_08,predictions_FDR_0.8_09,
